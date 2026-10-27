@@ -1,6 +1,4 @@
 ﻿using System;
-using Centralita; // para Llamada, Local, Provincial, Franja
-using CentralitaModelo = Centralita.Centralita; // alias por si hay conflicto de nombres
 
 namespace Test
 {
@@ -8,38 +6,40 @@ namespace Test
     {
         static void Main(string[] args)
         {
-            CentralitaModelo central = new CentralitaModelo("Central Telefónica Test");
+            // Cambiamos CentralitaModelo por Centralita
+            Centralita central = new Centralita("Central Telefónica Test");
 
-            // Dos llamadas Local
-            Local local1 = new Local("111", 10f, "222", 0.5f);
+            // 1. Instanciamos llamadas 
+            // Local(nroOrigen, nroDestino, duracion, costo)
+            Local local1 = new Local("111", "222", 10f, 0.5f);
+            Local local2 = new Local("333", "444", 20f, 0.7f);
 
-            Llamada llamadaBaseLocal = new Llamada(20f, "333", "444");
-            Local local2 = new Local(llamadaBaseLocal, 1f);
+            // Provincial(nroOrigen, nroDestino, duracion, Franja)
+            Provincial provincial1 = new Provincial("555", "666", 10f, Provincial.Franja.Franja_1);
+            Provincial provincial2 = new Provincial("777", "888", 30f, Provincial.Franja.Franja_3);
 
-            // Dos llamadas Provincial
-            Provincial provincial1 = new Provincial("555", Franja.Franja_1, 10f, "666");
+            // Prueba de duplicado
+            Local localDuplicada = new Local("111", "222", 15f, 0.9f);
 
-            Llamada llamadaBaseProvincial = new Llamada(30f, "777", "888");
-            Provincial provincial2 = new Provincial(Franja.Franja_3, llamadaBaseProvincial);
+            // 2. Registrar llamadas ÚNICAMENTE mediante el operador + 
+            central = central + local1;
+            central = central + local2;
+            central = central + provincial1;
+            central = central + provincial2;
 
-            // Agregar a la centralita
-            central.Llamadas.Add(local1);
-            central.Llamadas.Add(local2);
-            central.Llamadas.Add(provincial1);
-            central.Llamadas.Add(provincial2);
+            // Aquí se prueba que el operador + no agregue duplicados
+            central = central + localDuplicada;
 
-            Console.WriteLine("===== ANTES DE ORDENAR =====");
-            Console.WriteLine(central.Mostrar());
-
-            Console.WriteLine("Ganancia por Local: " + central.GananciaPorLocal);
-            Console.WriteLine("Ganancia por Provincial: " + central.GananciaPorProvincial);
-            Console.WriteLine("Ganancia Total: " + central.GananciaPorTotal);
-
+            // 3. Ordenar las llamadas
             central.OrdenarLlamadas();
 
-            Console.WriteLine();
-            Console.WriteLine("===== DESPUÉS DE ORDENAR =====");
-            Console.WriteLine(central.Mostrar());
+            // 4. Mostrar la Centralita UNA SOLA VEZ después de ordenar
+            Console.WriteLine("===== LLAMADAS REGISTRADAS (ORDENADAS) =====");
+            Console.WriteLine(central.ToString());
+
+            // Prueba del operador == entre Centralita y Llamada
+            Console.WriteLine("\n¿La centralita contiene a local1?: " + (central == local1));
+            Console.WriteLine("¿La centralita contiene a localDuplicada?: " + (central == localDuplicada));
 
             Console.ReadKey();
         }

@@ -1,53 +1,43 @@
-﻿using System.Text;
-
-namespace Centralita
+﻿public class Provincial : Llamada
 {
-    public enum Franja
+    private Franja franjaHoraria;
+
+    public enum Franja { Franja_1, Franja_2, Franja_3 }
+
+    public override float CostoLlamada => CalcularCosto();
+
+    public Provincial(string nroOrigen, string nroDestino, float duracion, Franja franja)
+        : base(nroOrigen, nroDestino, duracion)
     {
-        Franja_1,
-        Franja_2,
-        Franja_3
+        this.franjaHoraria = franja;
     }
 
-    public class Provincial : Llamada
+    private float CalcularCosto()
     {
-        protected Franja franjaHoraria;
-
-        public Provincial(string origen, Franja franja, float duracion, string destino)
-            : base(duracion, destino, origen)
+        float tarifa = franjaHoraria switch
         {
-            this.franjaHoraria = franja;
-        }
-
-        public Provincial(Franja franja, Llamada llamada)
-            : this(llamada.NroOrigen, franja, llamada.Duracion, llamada.NroDestino)
-        {
-        }
-
-        private float CalcularCosto()
-        {
-            float valorFranja;
-            switch (this.franjaHoraria)
-            {
-                case Franja.Franja_1: valorFranja = 0.99f; break;
-                case Franja.Franja_2: valorFranja = 1.25f; break;
-                default: valorFranja = 0.66f; break;
-            }
-            return this.Duracion * valorFranja;
-        }
-
-        public float CostoLlamada
-        {
-            get { return this.CalcularCosto(); }
-        }
-
-        public override string Mostrar()
-        {
-            StringBuilder sb = new StringBuilder();
-            sb.Append(base.Mostrar());
-            sb.AppendLine("Franja horaria: " + this.franjaHoraria);
-            sb.AppendLine("Costo llamada: " + this.CostoLlamada);
-            return sb.ToString();
-        }
+            Franja.Franja_1 => 0.99f,
+            Franja.Franja_2 => 1.25f,
+            Franja.Franja_3 => 0.66f,
+            _ => 0
+        };
+        return this.duracion * tarifa;
     }
+
+    protected override string Mostrar()
+    {
+        return $"{base.Mostrar()} - Franja: {this.franjaHoraria} - Costo Provincial: ${this.CostoLlamada}";
+    }
+
+    public override string ToString()
+    {
+        return Mostrar();
+    }
+
+    public override bool Equals(object obj)
+    {
+        return obj is Provincial;
+    }
+
+    public override int GetHashCode() => base.GetHashCode();
 }

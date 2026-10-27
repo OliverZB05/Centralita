@@ -1,81 +1,66 @@
 ﻿using System.Collections.Generic;
 using System.Text;
 
-namespace Centralita
+public class Centralita
 {
-    public enum TipoLlamada
+    private List<Llamada> listaDeLlamadas;
+    private string razonSocial;
+
+    public Centralita(string razonSocial)
     {
-        Local,
-        Provincial,
-        Todas
+        this.listaDeLlamadas = new List<Llamada>();
+        this.razonSocial = razonSocial;
     }
 
-    public class Centralita
+    private void AgregarLlamada(Llamada nuevaLlamada)
     {
-        private List<Llamada> listaDeLlamadas;
-        private string razonSocial;
+        this.listaDeLlamadas.Add(nuevaLlamada);
+    }
 
-        public Centralita()
+    private string Mostrar()
+    {
+        StringBuilder sb = new StringBuilder();
+        sb.AppendLine($"Centralita: {this.razonSocial}");
+        sb.AppendLine($"Total de llamadas: {this.listaDeLlamadas.Count}");
+        foreach (Llamada llamada in this.listaDeLlamadas)
         {
-            this.listaDeLlamadas = new List<Llamada>();
-            // SOLUCIÓN AL WARNING CS8618:
-            // Inicializamos razonSocial para que no sea nula por defecto.
-            this.razonSocial = string.Empty;
+            sb.AppendLine(llamada.ToString());
         }
+        return sb.ToString();
+    }
 
-        public Centralita(string razonSocial) : this()
+    public override string ToString()
+    {
+        return Mostrar();
+    }
+
+    public static bool operator ==(Centralita c, Llamada l)
+    {
+        if (ReferenceEquals(c, null) || ReferenceEquals(l, null)) return false;
+
+        foreach (Llamada llamadaEnLista in c.listaDeLlamadas)
         {
-            this.razonSocial = razonSocial;
+            if (llamadaEnLista == l) return true;
         }
+        return false;
+    }
 
-        public List<Llamada> Llamadas
+    public static bool operator !=(Centralita c, Llamada l)
+    {
+        return !(c == l);
+    }
+
+    public static Centralita operator +(Centralita c, Llamada l)
+    {
+        if (c != l)
         {
-            get { return this.listaDeLlamadas; }
+            c.AgregarLlamada(l);
         }
+        return c;
+    }
 
-        private float CalcularGanancia(TipoLlamada tipo)
-        {
-            float ganancia = 0;
-
-            foreach (Llamada llamada in this.listaDeLlamadas)
-            {
-                // Simplificamos el código usando Pattern Matching:
-                if (llamada is Local local && (tipo == TipoLlamada.Todas || tipo == TipoLlamada.Local))
-                {
-                    ganancia += local.CostoLlamada;
-                }
-                else if (llamada is Provincial provincial && (tipo == TipoLlamada.Todas || tipo == TipoLlamada.Provincial))
-                {
-                    ganancia += provincial.CostoLlamada;
-                }
-            }
-            return ganancia;
-        }
-
-        public float GananciaPorLocal { get { return this.CalcularGanancia(TipoLlamada.Local); } }
-        public float GananciaPorProvincial { get { return this.CalcularGanancia(TipoLlamada.Provincial); } }
-        public float GananciaPorTotal { get { return this.CalcularGanancia(TipoLlamada.Todas); } }
-
-        public void OrdenarLlamadas()
-        {
-            this.listaDeLlamadas.Sort(Llamada.OrdenarPorDuracion);
-        }
-
-        public string Mostrar()
-        {
-            StringBuilder sb = new StringBuilder();
-            sb.AppendLine("Razón Social: " + this.razonSocial);
-            sb.AppendLine("Facturación Total: " + this.GananciaPorTotal);
-            sb.AppendLine("Facturación Local: " + this.GananciaPorLocal);
-            sb.AppendLine("Facturación Provincial: " + this.GananciaPorProvincial);
-            sb.AppendLine("\n=== Detalle de llamadas ===");
-
-            foreach (Llamada llamada in this.listaDeLlamadas)
-            {
-                sb.AppendLine(llamada.Mostrar());
-                sb.AppendLine("-------------------------");
-            }
-            return sb.ToString();
-        }
+    public void OrdenarLlamadas()
+    {
+        this.listaDeLlamadas.Sort(Llamada.OrdenarPorDuracion);
     }
 }
